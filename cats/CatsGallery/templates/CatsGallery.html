@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Галерея Котиков</title>
+    <link rel="stylesheet" href="{% static 'CatsGallery.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Cats</h1>
+    </header>
+    <div class="gallery">
+        {% if cat_images %}
+            {% for cat in cat_images %}
+                <div class="cat-container">
+                    <img src="{{ cat.url }}" alt="Котик">
+                    <button class="favorite-button">В избранное</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        function loadCats() {
+            fetch('/CatsGallery/api/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка загрузки данных: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const gallery = document.querySelector('.gallery');
+                    gallery.innerHTML = '';
+                    data.forEach(cat => {
+                        const catContainer = document.createElement('div');
+                        catContainer.classList.add('cat-container');
+
+                        const img = document.createElement('img');
+                        img.src = cat.url;
+                        img.alt = 'Котик';
+
+                        const button = document.createElement('button');
+                        button.textContent = 'В избранное';
+                        button.classList.add('favorite-button');
+
+                        catContainer.appendChild(img);
+                        catContainer.appendChild(button);
+                        gallery.appendChild(catContainer);
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке котиков:', error);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCats);
+    </script>
+</body>
+</html>
